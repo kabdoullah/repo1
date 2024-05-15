@@ -1,0 +1,36 @@
+name: Zip file
+
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  zip_and_commit:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Zip the file
+      run: |
+        mkdir project
+        mv * project/ && mv .[!.]* project/
+        zip -r archive.zip project
+
+    - name: Delete other files
+      run: |
+        shopt -s extglob
+        rm -rf !(archive.zip|.git)
+        
+
+    - name: Commit changes
+      run: |
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git add .
+          git commit -m "Automatically zipped and cleaned files"
+          git push 
+      
+
